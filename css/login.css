@@ -1,0 +1,141 @@
+/* Reset lại toàn bộ để tránh bị thừa lề */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Ảnh nền với lớp phủ đen mờ vừa phải */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)),
+    url("https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=1500");
+  background-size: cover;
+  background-position: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Khung đăng nhập trung tâm */
+.login-container {
+  background: rgba(20, 20, 20, 0.95);
+  padding: 50px 40px;
+  border-radius: 15px;
+  border-top: 5px solid #ff0000; /* Viền đỏ phía trên */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+  width: 380px;
+  text-align: center;
+}
+
+.login-header i {
+  font-size: 3rem;
+  color: #ff0000;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.login-header h2 {
+  color: #fff;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.login-header p {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+}
+
+/* Sửa lỗi các ô input bị bé và chồng lấn */
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  color: #aaa;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  background: #2b2b2b;
+  border: 1px solid #444;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #ff0000;
+  background: #333;
+}
+
+/* Nút bấm Đăng Nhập */
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff0000;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background: #cc0000;
+  transform: scale(1.02);
+}
+
+.login-footer {
+  margin-top: 25px;
+}
+
+.login-footer a {
+  color: #ff0000;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+
+.login-footer p {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.login-footer a:hover {
+  color: #fff;
+  text-decoration: underline;
+} /* Thêm hiệu ứng focus cho ô nhập liệu */
+.input-group input:focus {
+  border-color: #ff0000;
+  background: #1a1a1a;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+/* Hiệu ứng loading cho nút bấm */
+.login-btn:active {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+/* Làm cho icon to và rõ hơn */
+.login-header i {
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+}

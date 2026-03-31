@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boxing Club - Đăng Nhập</title>
+    <link rel="stylesheet" href="css/login.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <i class="fas fa-user-ninja"></i>
+        <h2>VÀO SÀN ĐẤU</h2>
+        <p>Chào mừng võ sĩ quay trở lại!</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label>Email đăng nhập</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="input-group">
+          <label>Mật khẩu</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit" class="login-btn">ĐĂNG NHẬP</button>
+      </form>
+
+      <div class="login-footer">
+        <a href="index.html">← Quay lại trang chủ</a>
+        <p>Chưa có tài khoản? <a href="dangky.html">Đăng ký ngay</a></p>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import tất cả các hàm cần thiết từ Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        query,
+        where,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC7CTMzDutKdTerrLvFwEMIdcY4Q5j7KKk",
+        authDomain: "boxing-web-c3549.firebaseapp.com",
+        projectId: "boxing-web-c3549",
+        storageBucket: "boxing-web-c3549.firebasestorage.app",
+        messagingSenderId: "18316672267",
+        appId: "1:18316672267:web:7c2efe094e1aa6af65f60e",
+      };
+
+      // Khởi tạo Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Đẩy tất cả ra window ĐÚNG MỘT LẦN để file login.js sử dụng
+      window.firebaseAuth = auth;
+      window.db = db;
+      window.signIn = signInWithEmailAndPassword;
+
+      // Gom tất cả hàm Firestore vào dbFuncs
+      window.dbFuncs = { collection, getDocs, query, where, doc, getDoc };
+    </script>
+
+    <script src="js/login.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/login.js"></script>
+  </body>
+</html>

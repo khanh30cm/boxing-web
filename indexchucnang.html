@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boxing Club - Quản Lý Hệ Thống</title>
+    <link rel="stylesheet" href="css/style_chucnang.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="logo">BOXING<span>CLUB</span></div>
+      <nav class="top-nav">
+        <a href="index.html"><i class="fas fa-home"></i> Trang Chủ</a>
+        <a href="#" class="active" id="tab-vosi"
+          ><i class="fas fa-user-shield"></i> Quản Lý Võ Sĩ</a
+        >
+        <a href="#" id="tab-dungcu"
+          ><i class="fas fa-box-open"></i> Quản Lý Dụng Cụ</a
+        >
+        <a href="#" id="tab-request" style="color: #ffc107">
+          <i class="fas fa-money-check-alt"></i> Duyệt Nạp Tiền
+          <span id="req-count" class="badge-notify">0</span>
+        </a>
+      </nav>
+      <div class="user-info">
+        <span id="admin-status"><i class="fas fa-circle"></i> Online</span>
+        <span id="admin-name">Huấn Luyện Viên</span>
+        <a href="index.html" class="logout-link"
+          ><i class="fas fa-sign-out-alt"></i
+        ></a>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar">
+        <div class="sidebar-title">BỘ LỌC HỆ THỐNG</div>
+        <div class="filter-item">
+          <label><i class="fas fa-map-marker-alt"></i> Chi nhánh</label>
+          <select>
+            <option>Tây Ninh Center</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label><i class="fas fa-calendar-alt"></i> Ngày ghi nhận</label>
+          <input type="date" class="date-input" id="filterDate" />
+        </div>
+        <button class="btn-filter-submit" id="btnFilterMain">
+          LỌC DANH SÁCH
+        </button>
+      </aside>
+
+      <main class="content-area">
+        <section id="content-vosi">
+          <div class="action-bar">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="searchMember"
+                placeholder="Tìm tên võ sĩ, mã HV..."
+              />
+            </div>
+            <button class="btn-add-member" id="openAddModal">
+              <i class="fas fa-plus"></i> THÊM VÕ SĨ MỚI
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="member-table">
+              <thead>
+                <tr>
+                  <th>MÃ SỐ</th>
+                  <th>HỌ TÊN VÕ SĨ</th>
+                  <th>SỐ ĐIỆN THOẠI</th>
+                  <th>NGÀY GIA NHẬP</th>
+                  <th>TRẠNG THÁI</th>
+                  <th>THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="memberTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="content-dungcu" style="display: none">
+          <div class="action-bar">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="searchEquip"
+                placeholder="Tìm tên dụng cụ..."
+              />
+            </div>
+            <button
+              class="btn-add-member"
+              id="openEquipModal"
+              style="background: #27ae60"
+            >
+              <i class="fas fa-cart-plus"></i> NHẬP DỤNG CỤ
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="member-table">
+              <thead>
+                <tr>
+                  <th>TÊN DỤNG CỤ</th>
+                  <th>LOẠI</th>
+                  <th>GIÁ (VNĐ)</th>
+                  <th>SỐ LƯỢNG</th>
+                  <th>THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="equipTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="content-request" style="display: none">
+          <div class="action-bar">
+            <h3>
+              <i class="fas fa-check-double"></i> DANH SÁCH DUYỆT NẠP TIỀN
+            </h3>
+          </div>
+          <div class="table-container">
+            <table class="member-table">
+              <thead>
+                <tr>
+                  <th>VÕ SĨ</th>
+                  <th>MÃ SỐ</th>
+                  <th>SỐ TIỀN</th>
+                  <th>NGÀY GỬI</th>
+                  <th>THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="requestTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="addMemberModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>THÊM VÕ SĨ</h3>
+          <span class="close-modal" id="closeAddModal">&times;</span>
+        </div>
+        <form id="addMemberForm">
+          <div class="form-group">
+            <label>Họ tên</label><input type="text" id="newName" required />
+          </div>
+          <div class="form-group">
+            <label>SĐT</label
+            ><input type="text" id="newPhone" maxlength="10" required />
+          </div>
+          <div class="form-group">
+            <label>Ngày gia nhập</label
+            ><input type="date" id="newDate" required />
+          </div>
+          <div class="form-group">
+            <label>Trạng thái</label>
+            <select id="newStatus">
+              <option value="Đang tập">Đang tập</option>
+              <option value="Bảo lưu">Bảo lưu</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-save-member">LƯU VÕ SĨ</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="editMemberModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>CẬP NHẬT VÕ SĨ</h3>
+          <span class="close-modal" id="closeEditModal">&times;</span>
+        </div>
+        <form id="editMemberForm">
+          <input type="hidden" id="editDocId" />
+          <div class="form-group">
+            <label>Họ tên</label><input type="text" id="editName" required />
+          </div>
+          <div class="form-group">
+            <label>SĐT</label
+            ><input type="text" id="editPhone" maxlength="10" required />
+          </div>
+          <div class="form-group">
+            <label>Trạng thái</label>
+            <select id="editStatus">
+              <option value="Đang tập">Đang tập</option>
+              <option value="Bảo lưu">Bảo lưu</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-save-member">CẬP NHẬT</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="addEquipModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>NHẬP KHO DỤNG CỤ</h3>
+          <span class="close-modal" id="closeEquipModal">&times;</span>
+        </div>
+        <form id="addEquipForm">
+          <div class="form-group">
+            <label>Tên dụng cụ</label
+            ><input type="text" id="equipName" required />
+          </div>
+          <div class="form-group">
+            <label>Loại</label>
+            <select id="equipType">
+              <option value="Bán">Bán</option>
+              <option value="Cho thuê">Cho thuê</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giá tiền</label
+            ><input type="number" id="equipPrice" required />
+          </div>
+          <div class="form-group">
+            <label>Số lượng</label
+            ><input type="number" id="equipStock" required />
+          </div>
+          <button
+            type="submit"
+            class="btn-save-member"
+            style="background: #27ae60"
+          >
+            NHẬP KHO
+          </button>
+        </form>
+      </div>
+    </div>
+    <div id="buyModal" class="modal">
+      <div class="modal-content" style="width: 350px">
+        <div class="modal-header">
+          <h3 id="buyTitle">XÁC NHẬN GIAO DỊCH</h3>
+          <span class="close-modal" id="closeBuyModal">&times;</span>
+        </div>
+        <div style="padding: 20px">
+          <p
+            id="buyItemName"
+            style="
+              font-weight: bold;
+              color: #ff0000;
+              font-size: 1.1rem;
+              margin-bottom: 15px;
+            "
+          ></p>
+          <div class="form-group">
+            <label>Số lượng:</label>
+            <input
+              type="number"
+              id="buyQty"
+              value="1"
+              min="1"
+              style="width: 100%; padding: 8px"
+            />
+          </div>
+          <div id="rentTimeGroup" style="display: none" class="form-group">
+            <label>Số giờ thuê:</label>
+            <input
+              type="number"
+              id="rentHours"
+              value="1"
+              min="1"
+              style="width: 100%; padding: 8px"
+            />
+          </div>
+          <button
+            id="btnConfirmBuy"
+            class="btn-save-member"
+            style="background: #2ecc71; margin-top: 10px"
+          >
+            XÁC NHẬN
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        orderBy,
+        doc,
+        getDoc,    /* <--- FIX: Đã thêm getDoc vào đây */
+        deleteDoc,
+        updateDoc,
+        where
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC7CTMzDutKdTerrLvFwEMIdcY4Q5j7KKk",
+        authDomain: "boxing-web-c3549.firebaseapp.com",
+        projectId: "boxing-web-c3549",
+        storageBucket: "boxing-web-c3549.firebasestorage.app",
+        messagingSenderId: "18316672267",
+        appId: "1:18316672267:web:7c2efe094e1aa6af65f60e",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Gán vào window
+      window.db = db;
+      window.dbFuncs = {
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        orderBy,
+        doc,
+        getDoc, // <--- Đã có getDoc
+        deleteDoc,
+        updateDoc,
+        where
+      };
+
+      // Đảm bảo Firebase load xong mới chạy script logic
+      console.log("Firebase initialized and dbFuncs ready.");
+    </script>
+
+    <script src="js/script_chucnang.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boxing Club - Mạnh Mẽ Hơn Mỗi Ngày</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="logo">BOXING<span>CLUB</span></div>
+        <ul class="nav-links">
+          <li><a href="index.html">Trang Chủ</a></li>
+          <li id="auth-buttons">
+            <a href="indexdangnhap.html">Đăng Nhập</a>
+            <a href="dangky.html" style="margin-left: 20px">Đăng Ký</a>
+          </li>
+
+          <li id="user-profile" style="display: none">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
+                width="30"
+                style="border-radius: 50%"
+              />
+              <span id="user-name-text" style="color: white; font-weight: bold"
+                >Võ Sĩ</span
+              >
+              <a
+                href="#"
+                id="logout-btn"
+                style="color: #ff0000; font-size: 12px; text-decoration: none"
+                >[Thoát]</a
+              >
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <section id="home" class="content-section">
+      <div class="hero">
+        <h1>CHÀO MỪNG ĐẾN VỚI ĐẤU TRƯỜNG</h1>
+        <p>Nơi rèn luyện bản lĩnh và sức mạnh đỉnh cao.</p>
+        <div class="join-container">
+          <a
+            href="javascript:void(0)"
+            id="btnJoinNow"
+            class="btn"
+            style="text-decoration: none; display: inline-block"
+          >
+            Tham Gia Ngay
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <script src="/js/script.js"></script>
+    <div id="addMemberModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-user-plus"></i> THÊM VÕ SĨ MỚI</h3>
+          <span class="close-modal">&times;</span>
+        </div>
+        <form id="addMemberForm">
+          <div class="form-group">
+            <label>Họ và tên</label>
+            <input
+              type="text"
+              id="newName"
+              placeholder="Nhập tên võ sĩ..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input
+              type="text"
+              id="newPhone"
+              placeholder="Nhập số điện thoại..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>Ngày gia nhập</label>
+            <input type="date" id="newDate" required />
+          </div>
+          <div class="form-group">
+            <label>Trạng thái</label>
+            <select id="newStatus">
+              <option value="Đang tập">Đang tập</option>
+              <option value="Hết hạn">Hết hạn</option>
+              <option value="Bảo lưu">Bảo lưu</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-save">
+            LƯU VÕ SĨ <i class="fas fa-check"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    <script>
+      document
+        .getElementById("btnJoinNow")
+        .addEventListener("click", function (e) {
+          // Kiểm tra trạng thái đăng nhập từ LocalStorage
+          const isLoggedIn = localStorage.getItem("isLoggedIn");
+          const userRole = localStorage.getItem("userRole");
+
+          if (isLoggedIn === "true") {
+            // Nếu đã đăng nhập, kiểm tra quyền để chuyển hướng đúng trang
+            if (userRole === "admin") {
+              window.location.href = "admin.html";
+            } else {
+              window.location.href = "user.html";
+            }
+          } else {
+            // Nếu chưa đăng nhập, thông báo và đẩy sang trang đăng nhập
+            alert("Vui lòng đăng nhập để tham gia sàn đấu!");
+            window.location.href = "indexdangnhap.html"; // Tên file đăng nhập của bạn
+          }
+        });
+    </script>
+  </body>
+</html>

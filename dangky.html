@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boxing Club - Đăng Ký Thành Viên</title>
+    <link rel="stylesheet" href="css/register.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="register-container">
+      <div class="register-card">
+        <div class="register-header">
+          <i class="fas fa-user-plus"></i>
+          <h2>GIA NHẬP ĐỘI</h2>
+          <p>Bắt đầu hành trình chinh phục sức mạnh</p>
+        </div>
+
+        <form id="registerForm">
+          <div class="input-group">
+            <label>Họ và tên</label>
+            <input
+              type="text"
+              id="fullname"
+              placeholder="Nhập họ tên của bạn"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Email</label>
+            <input
+              type="email"
+              id="reg-email"
+              placeholder="ví dụ: admin@gmail.com"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Mật khẩu</label>
+            <input
+              type="password"
+              id="reg-password"
+              placeholder="Tối thiểu 6 ký tự"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Xác nhận mật khẩu</label>
+            <input
+              type="password"
+              id="confirm-password"
+              placeholder="Nhập lại mật khẩu"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-register">ĐĂNG KÝ NGAY</button>
+        </form>
+
+        <div class="footer-links">
+          <span>Đã có tài khoản? </span>
+          <a href="/indexdangnhap.html">Đăng nhập tại đây</a>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC7CTMzDutKdTerrLvFwEMIdcY4Q5j7KKk",
+        authDomain: "boxing-web-c3549.firebaseapp.com",
+        projectId: "boxing-web-c3549",
+        storageBucket: "boxing-web-c3549.firebasestorage.app",
+        messagingSenderId: "18316672267",
+        appId: "1:18316672267:web:7c2efe094e1aa6af65f60e",
+        measurementId: "G-DB248KZ4K9",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      window.firebaseAuth = auth;
+      window.createUser = createUserWithEmailAndPassword;
+    </script>
+    <script src="js/register.js"></script>
+  </body>
+</html>
