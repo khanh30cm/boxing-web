@@ -509,3 +509,47 @@ body {
     margin-left: 5px;
     font-weight: bold;
 }
+/* --- RESPONSIVE CHO TRANG ADMIN --- */
+@media (max-width: 768px) {
+    /* Chuyển Sidebar lên trên hoặc ẩn đi */
+    .main-layout {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    /* QUAN TRỌNG: Xử lý tràn bảng dữ liệu */
+    .table-container {
+        width: 100%;
+        overflow-x: auto; /* Cho phép vuốt ngang bảng */
+        background: #1a1a1a;
+        border-radius: 8px;
+    }
+
+    .member-table {
+        min-width: 700px; /* Ép bảng giữ độ rộng để không nát chữ */
+    }
+
+    .admin-header {
+        flex-direction: column;
+        height: auto;
+        padding: 15px 10px;
+    }
+
+    .top-nav {
+        overflow-x: auto;
+        width: 100%;
+        white-space: nowrap;
+        padding: 10px 0;
+    }
+
+    /* Thu nhỏ Modal trên điện thoại */
+    .modal-content {
+        width: 95% !important;
+    }
+}

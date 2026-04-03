@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -6,10 +6,7 @@
     <title>Boxing Club - Tra Cứu Võ Sĩ</title>
     <link rel="stylesheet" href="css/style_chucnang.css" />
     <link rel="stylesheet" href="css/style_user.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   </head>
   <body>
     <div class="user-wrapper">
@@ -18,16 +15,9 @@
         <h3>TRA CỨU VÕ SĨ</h3>
         <p>Nhập số điện thoại đã đăng ký</p>
         <div class="form-group">
-          <input
-            type="text"
-            id="userPhoneInput"
-            placeholder="Ví dụ: 0912345678"
-            maxlength="10"
-          />
+          <input type="text" id="userPhoneInput" placeholder="Ví dụ: 0912345678" maxlength="10" />
         </div>
-        <button id="btnCheckUser" class="btn-filter-submit">
-          KIỂM TRA NGAY
-        </button>
+        <button id="btnCheckUser" class="btn-filter-submit">KIỂM TRA NGAY</button>
       </section>
 
       <section id="info-section" style="display: none">
@@ -36,43 +26,21 @@
           <div class="user-avatar"><i class="fas fa-user-ninja"></i></div>
           <h2 id="disp-name">---</h2>
           <p id="disp-id">Mã số: #----</p>
-
           <div class="user-balance-box">
             <small>SỐ DƯ TÀI KHOẢN</small>
             <h3 id="disp-balance">0đ</h3>
           </div>
-
-          <div
-            class="expiry-box"
-            style="
-              margin-top: 10px;
-              background: rgba(255, 255, 255, 0.1);
-              padding: 5px;
-              border-radius: 5px;
-            "
-          >
-            <small style="display: block; font-size: 10px; color: #eee"
-              >HẠN TẬP ĐẾN NGÀY:</small
-            >
-            <strong id="disp-expiry" style="color: #f1c40f"
-              >Chưa đăng ký</strong
-            >
-          </div>
-
-          <div class="badge-status" id="disp-status" style="margin-top: 10px">
-            Đang tập
-          </div>
+          <div class="badge-status" id="disp-status" style="margin-top: 10px">Đang tập</div>
         </div>
 
         <div class="user-details">
-          <div class="detail-item">
-            <i class="fas fa-phone"></i> SĐT:
-            <strong id="disp-phone">---</strong>
-          </div>
-          <div class="detail-item">
-            <i class="fas fa-calendar-check"></i> Tham gia:
-            <strong id="disp-date">---</strong>
-          </div>
+          <div class="detail-item"><i class="fas fa-phone"></i> SĐT: <strong id="disp-phone">---</strong></div>
+          <div class="detail-item"><i class="fas fa-calendar-check"></i> Tham gia: <strong id="disp-date">---</strong></div>
+        </div>
+
+        <div class="expiry-box-large" style="background: #1a1a1a; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #f1c40f; text-align: center;">
+          <h4 style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">THỜI HẠN GÓI TẬP</h4>
+          <div style="font-size: 1.3rem; font-weight: bold; color: #f1c40f;" id="disp-expiry">Chưa đăng ký</div>
         </div>
 
         <div class="rented-area">
@@ -80,50 +48,45 @@
           <div id="user-rent-list"></div>
         </div>
 
-        <div class="user-shop-section">
+        <div class="user-shop-section" style="margin-top: 25px;">
           <h4><i class="fas fa-store"></i> CỬA HÀNG BOXING</h4>
           <div id="shop-container" class="shop-grid">
             <p class="empty-msg">Đang tải sản phẩm...</p>
           </div>
         </div>
 
-        <div class="renewal-section">
-          <h4><i class="fas fa-wallet"></i> GIA HẠN / NẠP TIỀN</h4>
-          <div class="bank-info">
-            <p>Cú pháp: <strong id="transfer-syntax">Mã-Võ-Sĩ + Tên</strong></p>
-            <img
-              src="https://img.vietqr.io/image/970422-123456789-compact.jpg?amount=300000&addInfo=Gia%20han%20boxing"
-              alt="QR"
-              width="180"
-            />
-          </div>
+        <div class="subscription-card" style="background: linear-gradient(145deg, #222, #111); padding: 20px; border-radius: 15px; margin-top: 30px; border: 1px solid #f1c40f; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+          <h4 style="color: #f1c40f; margin-bottom: 15px; text-align: center;"><i class="fas fa-medal"></i> MUA GÓI TẬP MỚI</h4>
           <div class="form-group">
-            <select id="renewalPackage">
-              <option value="300000" data-days="30">
-                Nạp 300.000đ (Gói 30 ngày)
-              </option>
-              <option value="500000" data-days="60">
-                Nạp 500.000đ (Gói 60 ngày)
-              </option>
-              <option value="1000000" data-days="150">
-                Nạp 1.000.000đ (Gói 150 ngày)
-              </option>
+            <select id="subscribePackage" style="width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px;">
+              <option value="300000" data-days="30">Gói Cơ Bản (30 ngày) - 300k</option>
+              <option value="550000" data-days="60">Gói Chiến Binh (60 ngày) - 550k</option>
+              <option value="1000000" data-days="150">Gói Vô Địch (150 ngày) - 1Tr</option>
             </select>
           </div>
-          <button
-            id="btnSendRequest"
-            class="btn-save-member"
-            style="background: #f1c40f; color: #000; font-weight: bold"
-          >
-            GỬI YÊU CẦU XÁC NHẬN
+          <button id="btnSubscribe" class="btn-save-member" style="background: #f1c40f; color: #000; font-weight: bold; width: 100%; border-radius: 8px; padding: 12px; border: none; cursor: pointer;">
+            XÁC NHẬN MUA GÓI
           </button>
+          <p style="font-size: 10px; color: #777; text-align: center; margin-top: 10px;">* Hệ thống trừ tiền trực tiếp từ số dư ví</p>
         </div>
 
-        <button
-          onclick="location.reload()"
-          class="btn-back"
-          style="margin-top: 20px"
-        >
+        <div class="deposit-section" style="margin-top: 25px; padding: 15px; background: #151515; border-radius: 10px; border: 1px dashed #2ecc71;">
+            <h4 style="color: #2ecc71; font-size: 1rem; margin-bottom: 10px;"><i class="fas fa-wallet"></i> NẠP TIỀN VÀO VÍ</h4>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="https://img.vietqr.io/image/970422-123456789-compact.jpg?amount=300000&addInfo=Nap%20tien" alt="QR" width="100" style="border-radius: 5px; border: 2px solid #fff;" />
+                <div style="font-size: 11px;">
+                    <p>Nội dung: <strong id="transfer-syntax" style="color: #2ecc71;">...</strong></p>
+                    <select id="depositAmount" style="background: #000; color: #fff; border: 1px solid #333; padding: 5px; margin: 5px 0; width: 100%;">
+                        <option value="100000">Nạp 100.000đ</option>
+                        <option value="300000">Nạp 300.000đ</option>
+                        <option value="500000">Nạp 500.000đ</option>
+                    </select>
+                    <button id="btnDepositRequest" style="background: #2ecc71; color: #fff; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; width: 100%;">GỬI YÊU CẦU ĐÃ NẠP</button>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="location.reload()" class="btn-back" style="margin-top: 20px; width: 100%; background: #333;">
           <i class="fas fa-sign-out-alt"></i> Thoát tài khoản
         </button>
       </section>
@@ -131,17 +94,7 @@
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        getDocs,
-        query,
-        where,
-        addDoc,
-        doc,
-        updateDoc,
-        orderBy,
-      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getFirestore, collection, getDocs, query, where, addDoc, doc, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyC7CTMzDutKdTerrLvFwEMIdcY4Q5j7KKk",
@@ -155,22 +108,10 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      // Lưu các biến vào window để các file script bên ngoài như user.js có thể truy cập
       window.db = db;
-      window.dbFuncs = {
-        collection,
-        getDocs,
-        query,
-        where,
-        addDoc,
-        doc,
-        updateDoc,
-        orderBy,
-      };
-
+      window.dbFuncs = { collection, getDocs, query, where, addDoc, doc, updateDoc, orderBy };
       console.log("Firebase đã sẵn sàng!");
     </script>
-
     <script src="js/user.js" defer></script>
   </body>
 </html>

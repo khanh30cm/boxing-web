@@ -28,7 +28,7 @@
       </nav>
       <div class="user-info">
         <span id="admin-status"><i class="fas fa-circle"></i> Online</span>
-        <span id="admin-name">Huấn Luyện Viên</span>
+        <span id="admin-name">thoát</span>
         <a href="index.html" class="logout-link"
           ><i class="fas fa-sign-out-alt"></i
         ></a>
@@ -292,10 +292,10 @@
         query,
         orderBy,
         doc,
-        getDoc,    /* <--- FIX: Đã thêm getDoc vào đây */
+        getDoc /* <--- FIX: Đã thêm getDoc vào đây */,
         deleteDoc,
         updateDoc,
-        where
+        where,
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -322,7 +322,7 @@
         getDoc, // <--- Đã có getDoc
         deleteDoc,
         updateDoc,
-        where
+        where,
       };
 
       // Đảm bảo Firebase load xong mới chạy script logic

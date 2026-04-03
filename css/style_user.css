@@ -176,3 +176,60 @@ h4 {
   padding: 12px;
   border-radius: 12px;
 }
+/* --- RESPONSIVE CHO TRANG USER --- */
+@media (max-width: 768px) {
+    .user-wrapper {
+        padding: 10px;
+    }
+    
+    .member-card {
+        width: 100% !important;
+        margin: 10px 0;
+    }
+
+    .shop-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 10px;
+    }
+
+    .user-details {
+        flex-direction: column;
+    }
+
+    /* Giúp bảng lịch sử hoặc danh sách không bị tràn */
+    .rented-area, .renewal-section {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .btn-save-member {
+        width: 100%;
+    }
+}
+.expiry-box-large {
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #f1c40f;
+    text-align: center;
+}
+
+.expiry-box-large h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: #bbb;
+}
+
+.expiry-display {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #f1c40f;
+}
+
+/* Tách biệt phần nạp tiền */
+.renewal-section {
+    background: rgba(241, 196, 15, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+}

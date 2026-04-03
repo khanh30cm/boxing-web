@@ -1,26 +1,14 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Đợi Firebase khởi tạo xong (tránh lỗi undefined window.dbFuncs)
+  // 1. Đợi Firebase khởi tạo xong
   let retryCount = 0;
   while (!window.dbFuncs && retryCount < 10) {
     await new Promise((resolve) => setTimeout(resolve, 200));
     retryCount++;
   }
 
-  if (!window.dbFuncs) {
-    console.error("Firebase chưa sẵn sàng. Hãy kiểm tra lại file user.html");
-    return;
-  }
+  if (!window.dbFuncs) return;
 
-  const {
-    collection,
-    getDocs,
-    query,
-    where,
-    addDoc,
-    doc,
-    updateDoc,
-    orderBy,
-  } = window.dbFuncs;
+  const { collection, getDocs, query, where, addDoc, doc, updateDoc, orderBy } = window.dbFuncs;
   const db = window.db;
 
   let currentUserDocId = null;
@@ -48,11 +36,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         cleanMaHV = userData.maHV; 
 
         showUserInfo(userData);
-        loadUserRentals();
+        loadUserRentals(); // Gọi hàm tải đồ thuê sau khi có cleanMaHV
         loadShopData();
       } catch (error) {
-        console.error("Lỗi tra cứu:", error);
-        alert("Lỗi kết nối Firebase: " + error.message);
+        alert("Lỗi kết nối Firebase!");
       }
     };
   }
@@ -74,46 +61,66 @@ document.addEventListener("DOMContentLoaded", async () => {
       if(expiryElem) {
         expiryElem.innerText = expiry.toLocaleDateString("vi-VN");
         expiryElem.style.color = expiry < new Date() ? "#ff4d4d" : "#f1c40f";
-        if (expiry < new Date()) expiryElem.innerText += " (Hết hạn)";
       }
     }
   }
 
-  // --- 2. GỬI YÊU CẦU NẠP TIỀN (ĐÃ HỢP NHẤT) ---
-  const btnSendRequest = document.getElementById("btnSendRequest");
-  if (btnSendRequest) {
-    btnSendRequest.onclick = async (e) => {
-      e.preventDefault();
+  // --- 2. XỬ LÝ MUA GÓI TẬP ---
+  const btnSubscribe = document.getElementById("btnSubscribe");
+  if (btnSubscribe) {
+    btnSubscribe.onclick = async () => {
+      if (!cleanMaHV) return alert("Vui lòng tra cứu võ sĩ trước!");
+      const pkgSelect = document.getElementById("subscribePackage");
+      const price = parseInt(pkgSelect.value);
+      const days = parseInt(pkgSelect.options[pkgSelect.selectedIndex].getAttribute("data-days") || 0);
 
-      if (!cleanMaHV) {
-        return alert("Vui lòng tra cứu võ sĩ trước khi gửi yêu cầu!");
+      if (currentBalance < price) {
+        return alert(`Số dư không đủ! Gói này ${price.toLocaleString()}đ nhưng ví chỉ còn ${currentBalance.toLocaleString()}đ.`);
       }
 
-      const pkgSelect = document.getElementById("renewalPackage");
-      const amount = parseInt(pkgSelect.value);
-      const daysAttr = pkgSelect.options[pkgSelect.selectedIndex].getAttribute("data-days");
-      const days = parseInt(daysAttr || 30);
-      const name = document.getElementById("disp-name").innerText;
+      if (!confirm(`Xác nhận dùng ${price.toLocaleString()}đ từ ví để mua gói ${days} ngày?`)) return;
 
       try {
         await addDoc(collection(db, "requests"), {
           userId: cleanMaHV,
-          userName: name,
-          amount: amount,
+          userName: document.getElementById("disp-name").innerText,
+          amount: price,
           days: days,
+          type: "Mua gói",
           status: "Chờ duyệt",
           createdAt: new Date()
         });
-
-        alert("Gửi yêu cầu thành công! Vui lòng chờ HLV duyệt tiền.");
+        alert("Đã gửi yêu cầu mua gói!");
       } catch (err) {
-        console.error("Lỗi gửi yêu cầu:", err);
-        alert("Không thể gửi yêu cầu: " + err.message);
+        alert("Lỗi: " + err.message);
       }
     };
   }
 
-  // --- 3. CỬA HÀNG VÀ GIAO DỊCH ---
+  // --- 3. XỬ LÝ NẠP TIỀN ---
+  const btnDepositRequest = document.getElementById("btnDepositRequest");
+  if (btnDepositRequest) {
+    btnDepositRequest.onclick = async () => {
+      if (!cleanMaHV) return alert("Vui lòng tra cứu võ sĩ trước!");
+      const amount = parseInt(document.getElementById("depositAmount").value);
+      try {
+        await addDoc(collection(db, "requests"), {
+          userId: cleanMaHV,
+          userName: document.getElementById("disp-name").innerText,
+          amount: amount,
+          days: 0,
+          type: "Nạp tiền", 
+          status: "Chờ duyệt",
+          createdAt: new Date()
+        });
+        alert("Đã gửi yêu cầu nạp tiền!");
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
+    };
+  }
+
+  // --- 4. CỬA HÀNG VÀ GIAO DỊCH ---
   async function loadShopData() {
     const shopContainer = document.getElementById("shop-container");
     if (!shopContainer) return;
@@ -156,8 +163,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       const newBalance = currentBalance - price;
 
       await updateDoc(userRef, { balance: newBalance });
+      
       let equipUpdate = { stock: stock - 1 };
-      if (type === "Cho thuê") equipUpdate.returnTime = Date.now() + 1 * 3600 * 1000;
+      if (type === "Cho thuê") {
+        equipUpdate.returnTime = Date.now() + 1 * 3600 * 1000;
+        equipUpdate.renterId = cleanMaHV; // FIX: Lưu ID người thuê vào sản phẩm
+      }
       await updateDoc(equipRef, equipUpdate);
 
       await addDoc(collection(db, "history"), {
@@ -174,14 +185,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       loadUserRentals();
       loadShopData();
     } catch (e) {
-      alert("Lỗi giao dịch: " + e.message);
+      alert("Lỗi giao dịch!");
     }
   }
 
-  // --- 4. QUẢN LÝ DỤNG CỤ THUÊ ---
+  // --- 5. QUẢN LÝ DỤNG CỤ THUÊ (FIX LỖI HIỂN THỊ NHẦM) ---
   async function loadUserRentals() {
     const rentList = document.getElementById("user-rent-list");
-    if (!rentList) return;
+    if (!rentList || !cleanMaHV) return;
 
     const snap = await getDocs(collection(db, "inventory"));
     rentList.innerHTML = "";
@@ -189,18 +200,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     snap.forEach((doc) => {
       const d = doc.data();
-      if (d.returnTime && d.returnTime > Date.now()) {
+      const now = Date.now();
+      
+      // ĐIỀU KIỆN: Phải còn hạn thuê VÀ renterId phải khớp với người đang xem
+      if (d.returnTime && d.returnTime > now && d.renterId === cleanMaHV) {
         hasItem = true;
         const div = document.createElement("div");
         div.className = "rent-item-user";
-        div.innerHTML = `<span>${d.name}</span><strong class="user-timer" data-expire="${d.returnTime}">...</strong>`;
+        div.innerHTML = `<span><i class="fas fa-mitten"></i> ${d.name}</span> <strong class="user-timer" data-expire="${d.returnTime}">...</strong>`;
         rentList.appendChild(div);
       }
     });
 
-    if (!hasItem) rentList.innerHTML = "<p class='empty-msg'>Không có dụng cụ thuê.</p>";
+    if (!hasItem) rentList.innerHTML = "<p class='empty-msg'>Bạn không có dụng cụ thuê.</p>";
   }
 
+  // Timer cập nhật mỗi giây
   setInterval(() => {
     document.querySelectorAll(".user-timer").forEach((span) => {
       const diff = parseInt(span.getAttribute("data-expire")) - Date.now();

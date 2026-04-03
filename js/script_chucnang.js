@@ -1,8 +1,9 @@
 /**
  * Boxing Club - Admin Logic Full (script_chucnang.js)
+ * Cập nhật: Chỉ cho phép tên võ sĩ là ký tự chữ, không dùng số.
  */
 document.addEventListener("DOMContentLoaded", async () => {
-    // Đợi Firebase sẵn sàng
+    // Đợi Firebase và dbFuncs sẵn sàng
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     const {
@@ -22,7 +23,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     const memberTableBody = document.getElementById("memberTableBody");
     const equipTableBody = document.getElementById("equipTableBody");
     const requestTableBody = document.getElementById("requestTableBody");
-    const buyModal = document.getElementById("buyModal");
+
+    // --- HÀM KIỂM TRA TÊN HỢP LỆ (Chỉ chữ và khoảng trắng) ---
+    function validateName(name) {
+        const regex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểếìỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ\s]+$/;
+        return regex.test(name);
+    }
+
+    // Ngăn chặn gõ số ngay từ bàn phím cho các ô nhập tên
+    const nameInputIds = ["newName", "editName"];
+    nameInputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.onkeypress = (e) => {
+                // Nếu ký tự nhập vào là số (0-9), ngăn chặn không cho nhập
+                if (/\d/.test(String.fromCharCode(e.keyCode))) {
+                    return false;
+                }
+            };
+        }
+    });
 
     // --- 1. TẢI DANH SÁCH VÕ SĨ ---
     async function loadMembers() {
@@ -35,7 +55,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const d = dSnap.data();
                 const id = dSnap.id;
                 const tr = document.createElement("tr");
-                tr.className = "master-row";
                 tr.innerHTML = `
                 <td>#${d.maHV}</td>
                 <td><strong class="name-highlight">${d.name}</strong></td>
@@ -51,191 +70,214 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (e) { console.error("Lỗi tải võ sĩ:", e); }
     }
 
-    // --- 2. TẢI DANH SÁCH DỤNG CỤ ---
+    // --- 2. XỬ LÝ LƯU SAU KHI SỬA VÕ SĨ (CÓ KIỂM TRA TÊN) ---
+    const editMemberForm = document.getElementById("editMemberForm");
+    if (editMemberForm) {
+        editMemberForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("editDocId").value;
+            const name = document.getElementById("editName").value.trim();
+            const phone = document.getElementById("editPhone").value;
+            const status = document.getElementById("editStatus").value;
+
+            // Kiểm tra tên hợp lệ
+            if (!validateName(name)) {
+                return alert("Tên võ sĩ không hợp lệ! Vui lòng chỉ sử dụng chữ cái, không dùng số.");
+            }
+
+            try {
+                await updateDoc(doc(db, "vosi", id), {
+                    name: name,
+                    phone: phone,
+                    status: status
+                });
+                alert("Cập nhật thành công!");
+                document.getElementById("editMemberModal").style.display = "none";
+                loadMembers();
+            } catch (err) { alert("Lỗi cập nhật: " + err.message); }
+        };
+    }
+
+    // --- 3. TẢI DANH SÁCH DỤNG CỤ ---
     async function loadEquips() {
         if (!equipTableBody) return;
         try {
             const q = query(collection(db, "inventory"), orderBy("createdAt", "desc"));
             const snap = await getDocs(q);
             equipTableBody.innerHTML = "";
+            if (snap.empty) {
+                equipTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">Kho trống.</td></tr>`;
+                return;
+            }
             snap.forEach((dSnap) => {
                 const d = dSnap.data();
-                const id = dSnap.id;
-                const now = Date.now();
-                const isRenting = d.type === "Cho thuê" && d.returnTime && d.returnTime > now;
-                const isOutOfStock = d.stock <= 0;
                 const tr = document.createElement("tr");
-                tr.className = "equip-row";
                 tr.innerHTML = `
                 <td><strong>${d.name}</strong></td>
-                <td><span class="badge ${d.type === "Cho thuê" ? "badge-rent" : "badge-sell"}">${d.type}</span></td>
+                <td><span class="badge ${d.type === 'Cho thuê' ? 'badge-rent' : 'badge-sell'}">${d.type}</span></td>
                 <td>${Number(d.price).toLocaleString()}đ</td>
-                <td class="${isOutOfStock ? "out-of-stock" : ""}">${isOutOfStock ? "Hết hàng" : d.stock + " cái"}</td>
+                <td>${d.stock} cái</td>
                 <td>
-                    ${isRenting
-                        ? `<span class="timer-countdown" data-expire="${d.returnTime}" data-id="${id}"></span>`
-                        : `<button class="btn-buy" onclick="openBuyModal('${id}', '${d.name}', ${d.stock}, '${d.type}')" ${isOutOfStock ? "disabled" : ""}>
-                            <i class="fas fa-shopping-cart"></i> ${d.type === "Cho thuê" ? "THUÊ" : "MUA"}
-                        </button>`
-                    }
-                    <button class="btn-delete-equip" onclick="deleteEquip('${id}')"><i class="fas fa-trash"></i></button>
+                    <button class="btn-delete-equip" onclick="deleteEquip('${dSnap.id}')"><i class="fas fa-trash"></i></button>
                 </td>`;
                 equipTableBody.appendChild(tr);
             });
         } catch (e) { console.error("Lỗi tải dụng cụ:", e); }
     }
 
-    // --- 3. TẢI DANH SÁCH DUYỆT NẠP TIỀN ---
+    // --- 4. TÌM KIẾM VÕ SĨ ---
+    const searchMemberInput = document.getElementById("searchMember");
+    if (searchMemberInput) {
+        searchMemberInput.oninput = () => {
+            const filter = searchMemberInput.value.toLowerCase();
+            const rows = memberTableBody.getElementsByTagName("tr");
+            for (let i = 0; i < rows.length; i++) {
+                const txt = rows[i].textContent || rows[i].innerText;
+                rows[i].style.display = txt.toLowerCase().includes(filter) ? "" : "none";
+            }
+        };
+    }
+
+    // --- 5. TÌM KIẾM DỤNG CỤ ---
+    const searchEquipInput = document.getElementById("searchEquip");
+    if (searchEquipInput) {
+        searchEquipInput.oninput = () => {
+            const filter = searchEquipInput.value.toLowerCase();
+            const rows = equipTableBody.getElementsByTagName("tr");
+            for (let i = 0; i < rows.length; i++) {
+                const txt = rows[i].textContent || rows[i].innerText;
+                rows[i].style.display = txt.toLowerCase().includes(filter) ? "" : "none";
+            }
+        };
+    }
+
+    // --- 6. TẢI DANH SÁCH DUYỆT ---
     async function loadDepositRequests() {
         if (!requestTableBody) return;
         try {
             const q = query(collection(db, "requests"), where("status", "==", "Chờ duyệt"), orderBy("createdAt", "desc"));
             const snap = await getDocs(q);
             requestTableBody.innerHTML = "";
-
             const countBadge = document.getElementById("req-count");
             if (countBadge) countBadge.innerText = snap.size;
-
-            if (snap.empty) {
-                requestTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">Không có yêu cầu nạp tiền nào mới.</td></tr>`;
-                return;
-            }
-
             snap.forEach((docSnap) => {
                 const d = docSnap.data();
+                const isSub = d.type === "Mua gói";
+                const typeTag = isSub ? `<span style="color:#f1c40f; font-size:10px;">[MUA GÓI]</span>` : `<span style="color:#2ecc71; font-size:10px;">[NẠP VÍ]</span>`;
+                const prefix = isSub ? "-" : "+";
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                 <td><strong>${d.userName}</strong></td>
-                <td>#${d.userId}</td>
-                <td style="color:#2ecc71; font-weight:bold;">+${Number(d.amount).toLocaleString()}đ</td>
+                <td>#${d.userId} ${typeTag}</td>
+                <td style="color:${isSub ? '#ff4d4d' : '#2ecc71'}; font-weight:bold;">${prefix}${Number(d.amount).toLocaleString()}đ</td>
                 <td>${d.createdAt ? d.createdAt.toDate().toLocaleDateString('vi-VN') : "Mới"}</td>
                 <td>
                     <button class="btn-buy" onclick="approveMoney('${docSnap.id}', '${d.userId}', ${d.amount})">DUYỆT</button>
                 </td>`;
                 requestTableBody.appendChild(tr);
             });
-        } catch (e) { console.error("Lỗi tải yêu cầu nạp:", e); }
+        } catch (e) { console.error("Lỗi tải yêu cầu:", e); }
     }
 
-    // --- 4. HÀM DUYỆT TIỀN VÀ GIA HẠN ---
+    // --- 7. HÀM DUYỆT ---
     window.approveMoney = async (reqId, userId, amount) => {
-        if (confirm(`Xác nhận duyệt nạp ${Number(amount).toLocaleString()}đ cho võ sĩ ${userId}?`)) {
+        if (confirm(`Xác nhận duyệt cho võ sĩ ${userId}?`)) {
             try {
                 const reqRef = doc(db, "requests", reqId);
                 const reqSnap = await getDoc(reqRef);
-                if (!reqSnap.exists()) return alert("Yêu cầu không tồn tại!");
-                const addDays = reqSnap.data().days || 0;
-
+                const reqData = reqSnap.data();
+                const type = reqData.type;
+                const addDays = reqData.days || 0;
                 const qVosi = query(collection(db, "vosi"), where("maHV", "==", userId.replace("#", "").trim()));
                 const snapVosi = await getDocs(qVosi);
-                if (snapVosi.empty) return alert("Không tìm thấy hồ sơ võ sĩ!");
-
                 const vosiDoc = snapVosi.docs[0];
                 const vosiData = vosiDoc.data();
-
+                const currentBalance = vosiData.balance || 0;
+                let newBalance = currentBalance;
                 let currentExpiry = vosiData.expiryDate ? vosiData.expiryDate.toDate() : new Date();
                 if (currentExpiry < new Date()) currentExpiry = new Date();
-                const newExpiry = new Date(currentExpiry.getTime() + addDays * 24 * 60 * 60 * 1000);
-
-                await updateDoc(doc(db, "vosi", vosiDoc.id), {
-                    balance: (vosiData.balance || 0) + parseInt(amount),
-                    expiryDate: newExpiry,
-                    status: "Đang tập",
-                });
+                let newExpiry = currentExpiry;
+                if (type === "Mua gói") {
+                    if (currentBalance < amount) return alert("Võ sĩ không đủ tiền!");
+                    newBalance = currentBalance - amount; 
+                    newExpiry = new Date(currentExpiry.getTime() + addDays * 24 * 60 * 60 * 1000);
+                } else {
+                    newBalance = currentBalance + amount;
+                }
+                await updateDoc(doc(db, "vosi", vosiDoc.id), { balance: newBalance, expiryDate: newExpiry, status: "Đang tập" });
                 await updateDoc(reqRef, { status: "Đã duyệt" });
-
-                alert(`Thành công! Đã gia hạn đến: ${newExpiry.toLocaleDateString('vi-VN')}`);
-                loadDepositRequests();
-            } catch (err) { alert("Lỗi khi duyệt: " + err.message); }
+                alert("Thành công!");
+                loadDepositRequests(); loadMembers();
+            } catch (err) { alert("Lỗi: " + err.message); }
         }
     };
 
-    // --- 5. THÊM VÕ SĨ MỚI ---
+    // --- 8. FORM THÊM MỚI (CÓ KIỂM TRA TÊN) ---
     const addMemberForm = document.getElementById("addMemberForm");
     if (addMemberForm) {
         addMemberForm.onsubmit = async (e) => {
             e.preventDefault();
-            try {
-                const name = document.getElementById("newName").value;
-                const phone = document.getElementById("newPhone").value;
-                const date = document.getElementById("newDate").value;
-                const status = document.getElementById("newStatus").value;
+            const name = document.getElementById("newName").value.trim();
+            
+            if (!validateName(name)) {
+                return alert("Tên võ sĩ không hợp lệ! Vui lòng chỉ sử dụng chữ cái, không dùng số.");
+            }
 
+            try {
                 await addDoc(collection(db, "vosi"), {
-                    name, phone, date, status,
+                    name: name,
+                    phone: document.getElementById("newPhone").value,
+                    date: document.getElementById("newDate").value,
+                    status: document.getElementById("newStatus").value,
                     maHV: "HV" + Math.floor(1000 + Math.random() * 9000),
                     balance: 0,
                     createdAt: new Date()
                 });
                 alert("Thêm võ sĩ thành công!");
+                loadMembers();
                 addMemberForm.reset();
                 document.getElementById("addMemberModal").style.display = "none";
-                loadMembers();
-            } catch (err) { alert("Lỗi: " + err.message); }
+            } catch (err) { alert(err.message); }
         };
     }
 
-    // --- 6. NHẬP KHO DỤNG CỤ ---
     const addEquipForm = document.getElementById("addEquipForm");
     if (addEquipForm) {
         addEquipForm.onsubmit = async (e) => {
             e.preventDefault();
             try {
-                const name = document.getElementById("equipName").value;
-                const type = document.getElementById("equipType").value;
-                const price = document.getElementById("equipPrice").value;
-                const stock = document.getElementById("equipStock").value;
-
                 await addDoc(collection(db, "inventory"), {
-                    name, type, 
-                    price: Number(price), 
-                    stock: parseInt(stock),
+                    name: document.getElementById("equipName").value,
+                    type: document.getElementById("equipType").value,
+                    price: Number(document.getElementById("equipPrice").value),
+                    stock: parseInt(document.getElementById("equipStock").value),
                     createdAt: new Date()
                 });
                 alert("Nhập kho thành công!");
+                loadEquips();
                 addEquipForm.reset();
                 document.getElementById("addEquipModal").style.display = "none";
-                loadEquips();
-            } catch (err) { alert("Lỗi: " + err.message); }
+            } catch (err) { alert(err.message); }
         };
     }
 
-    // --- 7. ĐIỀU HƯỚNG TAB ---
-    function hideAllSections() {
-        document.getElementById("content-vosi").style.display = "none";
-        document.getElementById("content-dungcu").style.display = "none";
-        document.getElementById("content-request").style.display = "none";
-        document.getElementById("tab-vosi").classList.remove("active");
-        document.getElementById("tab-dungcu").classList.remove("active");
-        document.getElementById("tab-request").classList.remove("active");
+    // --- 9. ĐIỀU HƯỚNG TAB ---
+    document.getElementById("tab-vosi").onclick = () => { switchTab("content-vosi", "tab-vosi"); loadMembers(); };
+    document.getElementById("tab-dungcu").onclick = () => { switchTab("content-dungcu", "tab-dungcu"); loadEquips(); };
+    document.getElementById("tab-request").onclick = (e) => { e.preventDefault(); switchTab("content-request", "tab-request"); loadDepositRequests(); };
+
+    function switchTab(contentId, tabId) {
+        ["content-vosi", "content-dungcu", "content-request"].forEach(id => document.getElementById(id).style.display = "none");
+        ["tab-vosi", "tab-dungcu", "tab-request"].forEach(id => document.getElementById(id).classList.remove("active"));
+        document.getElementById(contentId).style.display = "block";
+        document.getElementById(tabId).classList.add("active");
     }
 
-    document.getElementById("tab-vosi").onclick = () => {
-        hideAllSections();
-        document.getElementById("content-vosi").style.display = "block";
-        document.getElementById("tab-vosi").classList.add("active");
-        loadMembers();
-    };
-    document.getElementById("tab-dungcu").onclick = () => {
-        hideAllSections();
-        document.getElementById("content-dungcu").style.display = "block";
-        document.getElementById("tab-dungcu").classList.add("active");
-        loadEquips();
-    };
-    document.getElementById("tab-request").onclick = (e) => {
-        e.preventDefault();
-        hideAllSections();
-        document.getElementById("content-request").style.display = "block";
-        document.getElementById("tab-request").classList.add("active");
-        loadDepositRequests();
-    };
-
-    // Khởi tạo ban đầu
     loadMembers();
     loadDepositRequests();
 });
 
-// --- CÁC HÀM WINDOW SCOPE (Sửa/Xóa/Modal) ---
+// --- WINDOW SCOPE ---
 window.prepEdit = (id, n, p, s) => {
     document.getElementById("editDocId").value = id;
     document.getElementById("editName").value = n;
@@ -258,20 +300,9 @@ window.deleteEquip = async (id) => {
     }
 };
 
-// Đóng mở Modal cơ bản
-const modals = ["addMemberModal", "editMemberModal", "addEquipModal", "buyModal"];
-document.querySelectorAll(".close-modal").forEach((btn) => {
-    btn.onclick = () => {
-        modals.forEach(m => document.getElementById(m).style.display = "none");
-    };
+document.querySelectorAll(".close-modal").forEach(btn => {
+    btn.onclick = () => ["addMemberModal", "editMemberModal", "addEquipModal"].forEach(m => document.getElementById(m).style.display = "none");
 });
 
 document.getElementById("openAddModal").onclick = () => document.getElementById("addMemberModal").style.display = "block";
 document.getElementById("openEquipModal").onclick = () => document.getElementById("addEquipModal").style.display = "block";
-
-window.onclick = (e) => {
-    modals.forEach((id) => {
-        const modal = document.getElementById(id);
-        if (e.target == modal) modal.style.display = "none";
-    });
-};
