@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Boxing Club - Đăng Nhập</title>
+    <title>Boxing Club - Đăng Nhập Hệ Thống</title>
     <link rel="stylesheet" href="css/login.css" />
     <link
       rel="stylesheet"
@@ -15,19 +15,29 @@
       <div class="login-header">
         <i class="fas fa-user-ninja"></i>
         <h2>VÀO SÀN ĐẤU</h2>
-        <p>Chào mừng võ sĩ quay trở lại!</p>
+        <p>Hệ thống quản lý Boxing Club</p>
       </div>
 
-      <form id="loginForm">
+      <form id="mainLoginForm">
         <div class="input-group">
           <label>Email đăng nhập</label>
-          <input type="email" id="email" required />
+          <input
+            type="email"
+            id="email"
+            placeholder="admin@gmail.com"
+            required
+          />
         </div>
         <div class="input-group">
           <label>Mật khẩu</label>
-          <input type="password" id="password" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="••••••••"
+            required
+          />
         </div>
-        <button type="submit" class="login-btn">ĐĂNG NHẬP</button>
+        <button type="submit" class="login-btn" id="btnLogin">ĐĂNG NHẬP</button>
       </form>
 
       <div class="login-footer">
@@ -37,18 +47,14 @@
     </div>
 
     <script type="module">
-      // Import tất cả các hàm cần thiết từ Firebase
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import {
         getAuth,
         signInWithEmailAndPassword,
+        signOut,
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
       import {
         getFirestore,
-        collection,
-        getDocs,
-        query,
-        where,
         doc,
         getDoc,
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -62,22 +68,58 @@
         appId: "1:18316672267:web:7c2efe094e1aa6af65f60e",
       };
 
-      // Khởi tạo Firebase
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // Đẩy tất cả ra window ĐÚNG MỘT LẦN để file login.js sử dụng
-      window.firebaseAuth = auth;
-      window.db = db;
-      window.signIn = signInWithEmailAndPassword;
+      const loginForm = document.getElementById("mainLoginForm");
 
-      // Gom tất cả hàm Firestore vào dbFuncs
-      window.dbFuncs = { collection, getDocs, query, where, doc, getDoc };
+      loginForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const btn = document.getElementById("btnLogin");
+
+        btn.innerText = "ĐANG KIỂM TRA...";
+        btn.disabled = true;
+
+        try {
+          // 1. Xác thực Email/Pass với Firebase Auth
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
+          const user = userCredential.user;
+
+          // 2. Truy vấn Role trong Collection 'user'
+          const userDocRef = doc(db, "user", email);
+          const userSnap = await getDoc(userDocRef);
+
+          if (userSnap.exists()) {
+            const role = userSnap.data().role;
+
+            if (role === "admin") {
+              alert("Xin chào Quản trị viên!");
+              window.location.href = "indexchucnang.html"; // Admin vào trang quản lý
+            } else {
+              alert("Đăng nhập thành công!");
+              // --- SỬA TẠI ĐÂY: Chuyển hướng User về Trang Chủ ---
+              window.location.href = "index.html";
+            }
+          } else {
+            alert("Tài khoản chưa được phân quyền trên hệ thống!");
+            await signOut(auth);
+            location.reload();
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Sai email hoặc mật khẩu. Vui lòng thử lại!");
+        } finally {
+          btn.innerText = "ĐĂNG NHẬP";
+          btn.disabled = false;
+        }
+      };
     </script>
-
-    <script src="js/login.js"></script>
-    <script src="js/login.js"></script>
-    <script src="js/login.js"></script>
   </body>
 </html>

@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Boxing Club - Mạnh Mẽ Hơn Mỗi Ngày</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
   </head>
   <body>
     <header>
@@ -12,6 +16,7 @@
         <div class="logo">BOXING<span>CLUB</span></div>
         <ul class="nav-links">
           <li><a href="index.html">Trang Chủ</a></li>
+
           <li id="auth-buttons">
             <a href="indexdangnhap.html">Đăng Nhập</a>
             <a href="dangky.html" style="margin-left: 20px">Đăng Ký</a>
@@ -28,7 +33,7 @@
                 >Võ Sĩ</span
               >
               <a
-                href="#"
+                href="javascript:void(0)"
                 id="logout-btn"
                 style="color: #ff0000; font-size: 12px; text-decoration: none"
                 >[Thoát]</a
@@ -56,29 +61,81 @@
       </div>
     </section>
 
-    <script src="/js/script.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <script>
-      document
-        .getElementById("btnJoinNow")
-        .addEventListener("click", function (e) {
-          // Kiểm tra trạng thái đăng nhập từ LocalStorage
-          const isLoggedIn = localStorage.getItem("isLoggedIn");
-          const userRole = localStorage.getItem("userRole");
+      const firebaseConfig = {
+        apiKey: "AIzaSyC7CTMzDutKdTerrLvFwEMIdcY4Q5j7KKk",
+        authDomain: "boxing-web-c3549.firebaseapp.com",
+        projectId: "boxing-web-c3549",
+        storageBucket: "boxing-web-c3549.firebasestorage.app",
+        messagingSenderId: "18316672267",
+        appId: "1:18316672267:web:7c2efe094e1aa6af65f60e",
+      };
 
-          if (isLoggedIn === "true") {
-            // Nếu đã đăng nhập, kiểm tra quyền để chuyển hướng đúng trang
-            if (userRole === "admin") {
-              window.location.href = "admin.html";
-            } else {
-              window.location.href = "user.html";
-            }
-          } else {
-            // Nếu chưa đăng nhập, thông báo và đẩy sang trang đăng nhập
-            alert("Vui lòng đăng nhập để tham gia sàn đấu!");
-            window.location.href = "indexdangnhap.html"; // Tên file đăng nhập của bạn
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let currentRole = null;
+
+      // 1. Tự động kiểm tra trạng thái đăng nhập khi tải trang
+      onAuthStateChanged(auth, async (user) => {
+        const authButtons = document.getElementById("auth-buttons");
+        const userProfile = document.getElementById("user-profile");
+        const userNameText = document.getElementById("user-name-text");
+
+        if (user) {
+          // Đã đăng nhập: Hiện Profile, ẩn nút Đăng nhập/Đăng ký
+          authButtons.style.display = "none";
+          userProfile.style.display = "block";
+
+          // Lấy Role từ Firestore để biết đường dẫn khi bấm "Tham gia ngay"
+          const userSnap = await getDoc(doc(db, "user", user.email));
+          if (userSnap.exists()) {
+            currentRole = userSnap.data().role;
+            userNameText.innerText = userSnap.data().name || "Võ Sĩ";
           }
+        } else {
+          // Chưa đăng nhập: Hiện nút Đăng nhập/Đăng ký, ẩn Profile
+          authButtons.style.display = "block";
+          userProfile.style.display = "none";
+          currentRole = null;
+        }
+      });
+
+      // 2. Xử lý nút "Tham Gia Ngay"
+      document.getElementById("btnJoinNow").onclick = () => {
+        if (!auth.currentUser) {
+          alert("Vui lòng đăng nhập để tham gia sàn đấu!");
+          window.location.href = "indexdangnhap.html";
+        } else {
+          // Chuyển hướng dựa trên Role đã lấy được
+          if (currentRole === "admin") {
+            window.location.href = "indexchucnang.html";
+          } else {
+            window.location.href = "user.html";
+          }
+        }
+      };
+
+      // 3. Xử lý nút Thoát
+      document.getElementById("logout-btn").onclick = () => {
+        signOut(auth).then(() => {
+          alert("Đã đăng xuất!");
+          location.reload();
         });
+      };
     </script>
   </body>
 </html>

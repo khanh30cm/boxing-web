@@ -21,7 +21,7 @@
 
         <form id="registerForm">
           <div class="input-group">
-            <label>Họ và tên</label>
+            <label>Họ và tên (Chỉ nhập chữ)</label>
             <input
               type="text"
               id="fullname"
@@ -34,7 +34,7 @@
             <input
               type="email"
               id="reg-email"
-              placeholder="ví dụ: admin@gmail.com"
+              placeholder="ví dụ: boxer@gmail.com"
               required
             />
           </div>
@@ -56,12 +56,14 @@
               required
             />
           </div>
-          <button type="submit" class="btn-register">ĐĂNG KÝ NGAY</button>
+          <button type="submit" class="btn-register" id="btnSubmit">
+            ĐĂNG KÝ NGAY
+          </button>
         </form>
 
         <div class="footer-links">
           <span>Đã có tài khoản? </span>
-          <a href="/indexdangnhap.html">Đăng nhập tại đây</a>
+          <a href="indexdangnhap.html">Đăng nhập tại đây</a>
         </div>
       </div>
     </div>
@@ -71,7 +73,15 @@
       import {
         getAuth,
         createUserWithEmailAndPassword,
+        signOut,
       } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        addDoc,
+        collection,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyC7CTMzDutKdTerrLvFwEMIdcY4Q5j7KKk",
@@ -80,15 +90,89 @@
         storageBucket: "boxing-web-c3549.firebasestorage.app",
         messagingSenderId: "18316672267",
         appId: "1:18316672267:web:7c2efe094e1aa6af65f60e",
-        measurementId: "G-DB248KZ4K9",
       };
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      window.firebaseAuth = auth;
-      window.createUser = createUserWithEmailAndPassword;
+      const form = document.getElementById("registerForm");
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("fullname").value.trim();
+        const email = document.getElementById("reg-email").value.trim();
+        const pass = document.getElementById("reg-password").value;
+        const confirmPass = document.getElementById("confirm-password").value;
+        const btn = document.getElementById("btnSubmit");
+
+        if (/\d/.test(name)) {
+          return alert("Họ tên không được chứa chữ số!");
+        }
+
+        if (pass !== confirmPass) {
+          return alert("Mật khẩu xác nhận không khớp!");
+        }
+        if (pass.length < 6) {
+          return alert("Mật khẩu phải từ 6 ký tự trở lên!");
+        }
+
+        btn.innerText = "ĐANG TẠO HỒ SƠ...";
+        btn.disabled = true;
+
+        try {
+          // 3. Tạo tài khoản trên Auth
+          const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            pass,
+          );
+
+          // 4. Lưu quyền vào collection 'user'
+          await setDoc(doc(db, "user", email), {
+            email: email,
+            role: "user",
+            name: name,
+          });
+
+          // 5. Tạo hồ sơ võ sĩ vào collection 'vosi'
+          const maHV = "HV" + Math.floor(1000 + Math.random() * 9000);
+          await addDoc(collection(db, "vosi"), {
+            email: email,
+            maHV: maHV,
+            name: name,
+            phone: "Chưa cập nhật",
+            date: new Date().toISOString().split("T")[0],
+            status: "Đang tập",
+            balance: 0,
+            createdAt: new Date(),
+            expiryDate: null,
+          });
+
+          // Thoát tài khoản vừa tạo để yêu cầu đăng nhập lại
+          await signOut(auth);
+
+          alert(
+            "Đăng ký thành công!\nMã số của bạn là: " +
+              maHV +
+              "\nVui lòng đăng nhập để tiếp tục.",
+          );
+
+          // --- SỬA TẠI ĐÂY: Chuyển hướng sang trang đăng nhập ---
+          window.location.href = "indexdangnhap.html";
+        } catch (error) {
+          console.error(error);
+          if (error.code === "auth/email-already-in-use") {
+            alert("Email này đã được đăng ký tài khoản khác!");
+          } else {
+            alert("Lỗi: " + error.message);
+          }
+        } finally {
+          btn.innerText = "ĐĂNG KÝ NGAY";
+          btn.disabled = false;
+        }
+      };
     </script>
-    <script src="js/register.js"></script>
   </body>
 </html>

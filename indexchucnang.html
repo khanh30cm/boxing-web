@@ -5,10 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Boxing Club - Quản Lý Hệ Thống</title>
     <link rel="stylesheet" href="css/style_chucnang.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <style>
+      /* Bổ sung CSS cho giao diện Dụng cụ dạng Card */
+      #equipGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+      }
+      .equip-card {
+        background: linear-gradient(145deg, #1e1e1e, #121212);
+        border-radius: 15px;
+        border: 1px solid #333;
+        padding: 20px;
+        position: relative;
+        transition: 0.3s;
+      }
+      .equip-card:hover {
+        border-color: #f1c40f;
+        transform: translateY(-5px);
+      }
+      .equip-name {
+        font-size: 1.1rem;
+        color: #fff;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 10px;
+      }
+      .equip-price {
+        color: #f1c40f;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+      .stock-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        float: right;
+      }
+      .stock-low {
+        background: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
+      }
+      .stock-ok {
+        background: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        border: 1px solid #2ecc71;
+      }
+      .badge-type {
+        position: absolute;
+        top: -10px;
+        left: 15px;
+        font-size: 10px;
+        padding: 3px 10px;
+        border-radius: 5px;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+      .badge-rent {
+        background: #3498db;
+        color: #fff;
+      }
+      .badge-sell {
+        background: #e67e22;
+        color: #fff;
+      }
+
+      /* Cải thiện bảng duyệt nạp tiền */
+      .amount-highlight {
+        font-family: "monospace";
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.3);
+      }
+    </style>
   </head>
   <body>
     <header class="admin-header">
@@ -28,7 +105,7 @@
       </nav>
       <div class="user-info">
         <span id="admin-status"><i class="fas fa-circle"></i> Online</span>
-        <span id="admin-name">thoát</span>
+        <span id="admin-name">Admin</span>
         <a href="index.html" class="logout-link"
           ><i class="fas fa-sign-out-alt"></i
         ></a>
@@ -100,38 +177,29 @@
               id="openEquipModal"
               style="background: #27ae60"
             >
-              <i class="fas fa-cart-plus"></i> NHẬP DỤNG CỤ
+              <i class="fas fa-cart-plus"></i> NHẬP DỤNG CỤ MỚI
             </button>
           </div>
-          <div class="table-container">
-            <table class="member-table">
-              <thead>
-                <tr>
-                  <th>TÊN DỤNG CỤ</th>
-                  <th>LOẠI</th>
-                  <th>GIÁ (VNĐ)</th>
-                  <th>SỐ LƯỢNG</th>
-                  <th>THAO TÁC</th>
-                </tr>
-              </thead>
-              <tbody id="equipTableBody"></tbody>
-            </table>
-          </div>
+          <div id="equipGrid"></div>
         </section>
+
         <section id="content-request" style="display: none">
           <div class="action-bar">
             <h3>
-              <i class="fas fa-check-double"></i> DANH SÁCH DUYỆT NẠP TIỀN
+              <i class="fas fa-check-double"></i> DANH SÁCH DUYỆT GIAO DỊCH
             </h3>
           </div>
-          <div class="table-container">
+          <div
+            class="table-container"
+            style="background: rgba(255, 255, 255, 0.02); border-radius: 15px"
+          >
             <table class="member-table">
               <thead>
                 <tr>
                   <th>VÕ SĨ</th>
-                  <th>MÃ SỐ</th>
+                  <th>THÔNG TIN</th>
                   <th>SỐ TIỀN</th>
-                  <th>NGÀY GỬI</th>
+                  <th>THỜI GIAN GỬI</th>
                   <th>THAO TÁC</th>
                 </tr>
               </thead>
@@ -172,6 +240,43 @@
       </div>
     </div>
 
+    <div id="addEquipModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>NHẬP KHO DỤNG CỤ</h3>
+          <span class="close-modal" id="closeEquipModal">&times;</span>
+        </div>
+        <form id="addEquipForm">
+          <div class="form-group">
+            <label>Tên dụng cụ</label
+            ><input type="text" id="equipName" required />
+          </div>
+          <div class="form-group">
+            <label>Loại hình</label>
+            <select id="equipType">
+              <option value="Bán">Bán</option>
+              <option value="Cho thuê">Cho thuê</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giá tiền (VNĐ)</label
+            ><input type="number" id="equipPrice" required />
+          </div>
+          <div class="form-group">
+            <label>Số lượng nhập</label
+            ><input type="number" id="equipStock" required />
+          </div>
+          <button
+            type="submit"
+            class="btn-save-member"
+            style="background: #27ae60"
+          >
+            XÁC NHẬN NHẬP KHO
+          </button>
+        </form>
+      </div>
+    </div>
+
     <div id="editMemberModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -192,93 +297,13 @@
             <select id="editStatus">
               <option value="Đang tập">Đang tập</option>
               <option value="Bảo lưu">Bảo lưu</option>
+              <option value="Nghỉ tập">Nghỉ tập</option>
             </select>
           </div>
-          <button type="submit" class="btn-save-member">CẬP NHẬT</button>
-        </form>
-      </div>
-    </div>
-
-    <div id="addEquipModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>NHẬP KHO DỤNG CỤ</h3>
-          <span class="close-modal" id="closeEquipModal">&times;</span>
-        </div>
-        <form id="addEquipForm">
-          <div class="form-group">
-            <label>Tên dụng cụ</label
-            ><input type="text" id="equipName" required />
-          </div>
-          <div class="form-group">
-            <label>Loại</label>
-            <select id="equipType">
-              <option value="Bán">Bán</option>
-              <option value="Cho thuê">Cho thuê</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Giá tiền</label
-            ><input type="number" id="equipPrice" required />
-          </div>
-          <div class="form-group">
-            <label>Số lượng</label
-            ><input type="number" id="equipStock" required />
-          </div>
-          <button
-            type="submit"
-            class="btn-save-member"
-            style="background: #27ae60"
-          >
-            NHẬP KHO
+          <button type="submit" class="btn-save-member">
+            CẬP NHẬT THÔNG TIN
           </button>
         </form>
-      </div>
-    </div>
-    <div id="buyModal" class="modal">
-      <div class="modal-content" style="width: 350px">
-        <div class="modal-header">
-          <h3 id="buyTitle">XÁC NHẬN GIAO DỊCH</h3>
-          <span class="close-modal" id="closeBuyModal">&times;</span>
-        </div>
-        <div style="padding: 20px">
-          <p
-            id="buyItemName"
-            style="
-              font-weight: bold;
-              color: #ff0000;
-              font-size: 1.1rem;
-              margin-bottom: 15px;
-            "
-          ></p>
-          <div class="form-group">
-            <label>Số lượng:</label>
-            <input
-              type="number"
-              id="buyQty"
-              value="1"
-              min="1"
-              style="width: 100%; padding: 8px"
-            />
-          </div>
-          <div id="rentTimeGroup" style="display: none" class="form-group">
-            <label>Số giờ thuê:</label>
-            <input
-              type="number"
-              id="rentHours"
-              value="1"
-              min="1"
-              style="width: 100%; padding: 8px"
-            />
-          </div>
-          <button
-            id="btnConfirmBuy"
-            class="btn-save-member"
-            style="background: #2ecc71; margin-top: 10px"
-          >
-            XÁC NHẬN
-          </button>
-        </div>
       </div>
     </div>
 
@@ -292,7 +317,7 @@
         query,
         orderBy,
         doc,
-        getDoc /* <--- FIX: Đã thêm getDoc vào đây */,
+        getDoc,
         deleteDoc,
         updateDoc,
         where,
@@ -310,7 +335,6 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      // Gán vào window
       window.db = db;
       window.dbFuncs = {
         collection,
@@ -319,14 +343,12 @@
         query,
         orderBy,
         doc,
-        getDoc, // <--- Đã có getDoc
+        getDoc,
         deleteDoc,
         updateDoc,
         where,
       };
-
-      // Đảm bảo Firebase load xong mới chạy script logic
-      console.log("Firebase initialized and dbFuncs ready.");
+      console.log("Admin System Ready.");
     </script>
 
     <script src="js/script_chucnang.js" defer></script>

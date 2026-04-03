@@ -553,3 +553,114 @@ body {
         width: 95% !important;
     }
 }
+/* Khung danh sách duyệt nạp tiền */
+#content-request .table-container {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Hiệu ứng cho từng dòng trong danh sách duyệt */
+#requestTableBody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#requestTableBody tr:hover {
+    background: rgba(255, 193, 7, 0.05);
+}
+
+/* Nút Duyệt nạp tiền kiểu mới */
+.btn-approve-money {
+    background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 11px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2);
+    transition: 0.3s;
+}
+
+.btn-approve-money:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
+}
+
+/* Badge số tiền nổi bật */
+.amount-highlight {
+    color: #2ecc71;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 1.1rem;
+    background: rgba(46, 204, 113, 0.1);
+    padding: 4px 10px;
+    border-radius: 5px;
+}/* Container cho danh sách dụng cụ */
+#equipTableBody {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Thẻ dụng cụ kiểu mới */
+.equip-card {
+    background: linear-gradient(145deg, #1e1e1e, #121212);
+    border-radius: 15px;
+    border: 1px solid #333;
+    padding: 20px;
+    position: relative;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.equip-card:hover {
+    border-color: #f1c40f;
+    transform: translateY(-5px);
+}
+
+.equip-name {
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.equip-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.equip-price {
+    color: #f1c40f;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.equip-stock {
+    font-size: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* Màu sắc theo số lượng tồn kho */
+.stock-low { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+.stock-ok { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+
+.badge-type {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-transform: uppercase;
+}
